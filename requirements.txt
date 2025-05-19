@@ -1,0 +1,10 @@
+datasets
+librosa
+matplotlib
+numpy==1.26.4
+onnxruntime
+scikit-learn
+sounddevice
+soundfile
+torch
+torchaudio
