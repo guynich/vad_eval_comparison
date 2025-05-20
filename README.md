@@ -5,7 +5,7 @@ https://huggingface.co/datasets/guynich/librispeech_asr_test_vad
 
 VAD Models:
 - [Silero VAD](https://github.com/snakers4/silero-vad)
-- [Ten VAD](https://github.com/TEN-framework/ten-vad)
+- [TEN VAD](https://github.com/TEN-framework/ten-vad)
 
 # Introduction
 
@@ -14,6 +14,8 @@ This repo computes AUC metrics for the test dataset with VAD models.
 # Installation
 
 This section describes installation for the code in this repo.
+
+| Note: on a second computer this install did not run main.py successfully (.so file not found).
 
 The first step is to clone this repo.
 ```sh
@@ -25,8 +27,9 @@ The main script has dependencies.  For these steps I used Ubuntu 22.04 and
 Python `venv` virtual environment.  TEN VAD requires libc++1.  The script plots
 require tkinter.
 ```sh
+sudo apt update
 sudo apt install libc++1
-sudo apt install -y python3.10-venv
+sudo apt install python3.10-venv
 sudo apt-get install python3-tk
 
 cd
@@ -121,7 +124,12 @@ PR AUC
 * TEN VAD AUC values are up to 1% higher than Silero VAD for this dataset.  These results do not include any quantification of the significance of this difference.
   * Excluding the low confidence examples reduces this difference.
 * Threshold values [0., 1.]: TEN VAD has wider operating points than Silero VAD so different threshold numerical value need to chosen depending on model and your application
+  * Comparing both models with the same value for threshold (e.g.: 0.5) could be misleading.
   * For example if your application has a target false positive rate then chose threshold value per model operation characteristic.
-* TEN VAD configuration:
-  * May perform differently with chunk size of 256.  The dataset `speech` feature and code here uses 512 samples.
-  * May need different code to reset TEN VAD model state between examples in this testing.
+
+# Next steps
+
+* [ ] [Reset TEN VAD model state between examples](https://github.com/TEN-framework/ten-vad/issues/16).
+* [ ] [TED VAD optimized for hop size of 160/256 samples](https://github.com/ten-framework/ten-vad?tab=readme-ov-file#5-supproted-sampling-rate-and-hop-size).  The dataset `speech` feature and code here uses 512 samples.
+* [ ] Multilingual test dataset.
+* [ ] Installation on a second computer has error when running main.py: `OSError: ../venv_vad_eval_comparison/lib/python3.10/site-packages/./ten_vad_library/libten_vad.so: cannot open shared object file: No such file or directory`.
