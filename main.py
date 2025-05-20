@@ -195,7 +195,7 @@ def main():
     ten_vad = SpeechDetectorTenVAD()
     models = [silero_vad, ten_vad]
 
-    all_results = {}
+    auc_metric_results = {}
     for split in SPLITS:
         model_results = []
         model_results_confident = []
@@ -225,11 +225,11 @@ def main():
             ))
 
             # Store metrics
-            all_results[f"{split}_{model.get_name()}"] = compute_overall_auc(
+            auc_metric_results[f"{split}_{model.get_name()}"] = compute_overall_auc(
                 dataset[split]["speech"],
                 processed["vad_probs"]
             )
-            all_results[f"{split}_{model.get_name()}_confidence"] = compute_overall_auc(
+            auc_metric_results[f"{split}_{model.get_name()}_confidence"] = compute_overall_auc(
                 processed["confident_speech"],
                 processed["confident_vad_probs"]
             )
@@ -243,7 +243,7 @@ def main():
         )
 
     print("\nOverall results:")
-    pprint.pprint(all_results)
+    pprint.pprint(auc_metric_results)
 
     import pdb; pdb.set_trace()
 
