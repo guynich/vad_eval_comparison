@@ -1,8 +1,8 @@
 AUC metrics comparison for two voice activity detection (VAD) models.
 
 Test Dataset Cards on HuggingFace.
-- English: https://huggingface.co/datasets/guynich/multilingual_librispeech_test_vad
-- Multilingual https://huggingface.co/datasets/guynich/librispeech_asr_test_vad
+- English: https://huggingface.co/datasets/guynich/librispeech_asr_test_vad
+- Multilingual: https://huggingface.co/datasets/guynich/multilingual_librispeech_test_vad
 
 VAD Models:
 - [Silero VAD](https://github.com/snakers4/silero-vad)
@@ -16,7 +16,7 @@ This repo computes AUC metrics for two test datasets with VAD models.
 
 This section describes installation for the code in this repo.
 
-| Note: on a second computer this install did not run main.py successfully (.so file not found).
+| Note: on an ARM CPU the script `main.py` did not run successfully with error .so file not found.
 
 The first step is to clone this repo.
 ```sh
@@ -61,6 +61,7 @@ Both models use an audio chunk size of 512 samples at 16000Hz.
 ## Results
 
 Test setup.
+* x64 Intel Xeon
 * Ubuntu 22.04.5 LTS
 * Python 3.10.9
 * Numpy 1.26.4
@@ -195,4 +196,4 @@ Overall results:
 * [x] Multilingual test dataset.
 * [ ] Reset TEN VAD model state between examples [link](https://github.com/TEN-framework/ten-vad/issues/16).
 * [ ] TED VAD optimized for hop size of [160/256 samples](https://github.com/ten-framework/ten-vad?tab=readme-ov-file#5-supproted-sampling-rate-and-hop-size).  The dataset `speech` feature and code here uses 512 samples.
-* [ ] Installation on a second computer has error running main.py: `OSError: ../venv_vad_eval_comparison/lib/python3.10/site-packages/./ten_vad_library/libten_vad.so: cannot open shared object file: No such file or directory`.
+* [ ] Installation on computer with ARM CPU has error running main.py: `OSError: ../venv_vad_eval_comparison/lib/python3.10/site-packages/./ten_vad_library/libten_vad.so: cannot open shared object file: No such file or directory`.
