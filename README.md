@@ -1,7 +1,8 @@
 AUC metrics comparison for two voice activity detection (VAD) models.
 
-Test Dataset Card on HuggingFace.
-https://huggingface.co/datasets/guynich/librispeech_asr_test_vad
+Test Dataset Cards on HuggingFace.
+- English: https://huggingface.co/datasets/guynich/multilingual_librispeech_test_vad
+- Multilingual https://huggingface.co/datasets/guynich/librispeech_asr_test_vad
 
 VAD Models:
 - [Silero VAD](https://github.com/snakers4/silero-vad)
@@ -9,7 +10,7 @@ VAD Models:
 
 # Introduction
 
-This repo computes AUC metrics for the test dataset with VAD models.
+This repo computes AUC metrics for two test datasets with VAD models.
 
 # Installation
 
@@ -86,6 +87,23 @@ Speech features marked as low confidence are excluded in the following plot.  Se
 for discussion.
 
 <img src="images/ROC_test_other_exclude_low_confidence.png" alt="AUC plots for test.clean excluding zero confidence data"/>
+
+ROC AUC
+
+| Split       | Silero VAD | TEN VAD |
+| ----------- | ---------- | ------- |
+| test.clean  | 0.975      | 0.979   |
+| test.other  | 0.969      | 0.978   |
+
+PR AUC
+
+| Split       | Silero VAD | TEN VAD |
+| ----------- | ---------- | ------- |
+| test.clean  | 0.992      | 0.993   |
+| test.other  | 0.986      | 0.990   |
+
+Similar trend in AUC values is seen with the seven languages from the multilingual
+dataset.
 
 ```
 Overall results:
@@ -164,22 +182,6 @@ Overall results:
 
 ```
 
-ROC AUC
-
-| Split       | Silero VAD | TEN VAD |
-| ----------- | ---------- | ------- |
-| test.clean  | 0.975      | 0.979   |
-| test.other  | 0.969      | 0.978   |
-
-PR AUC
-
-| Split       | Silero VAD | TEN VAD |
-| ----------- | ---------- | ------- |
-| test.clean  | 0.992      | 0.993   |
-| test.other  | 0.986      | 0.990   |
-
-Similar trend in AUC values is seen with the other seven languages tested.
-
 ### Comments
 
 * TEN VAD AUC values are up to 1% higher than Silero VAD for this dataset.  These results do not include any quantification of the significance of this difference.
@@ -190,7 +192,7 @@ Similar trend in AUC values is seen with the other seven languages tested.
 
 # Next steps
 
-* [ ] [Reset TEN VAD model state between examples](https://github.com/TEN-framework/ten-vad/issues/16).
-* [ ] [TED VAD optimized for hop size of 160/256 samples](https://github.com/ten-framework/ten-vad?tab=readme-ov-file#5-supproted-sampling-rate-and-hop-size).  The dataset `speech` feature and code here uses 512 samples.
 * [x] Multilingual test dataset.
-* [ ] Installation on a second computer has error when running main.py: `OSError: ../venv_vad_eval_comparison/lib/python3.10/site-packages/./ten_vad_library/libten_vad.so: cannot open shared object file: No such file or directory`.
+* [ ] Reset TEN VAD model state between examples [link](https://github.com/TEN-framework/ten-vad/issues/16).
+* [ ] TED VAD optimized for hop size of [160/256 samples](https://github.com/ten-framework/ten-vad?tab=readme-ov-file#5-supproted-sampling-rate-and-hop-size).  The dataset `speech` feature and code here uses 512 samples.
+* [ ] Installation on a second computer has error running main.py: `OSError: ../venv_vad_eval_comparison/lib/python3.10/site-packages/./ten_vad_library/libten_vad.so: cannot open shared object file: No such file or directory`.
