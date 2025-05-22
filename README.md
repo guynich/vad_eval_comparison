@@ -197,3 +197,4 @@ Overall results:
 * [ ] Reset TEN VAD model state between examples [link](https://github.com/TEN-framework/ten-vad/issues/16).
 * [ ] TED VAD optimized for hop size of [160/256 samples](https://github.com/ten-framework/ten-vad?tab=readme-ov-file#5-supproted-sampling-rate-and-hop-size).  The dataset `speech` feature and code here uses 512 samples.
 * [x] Installation on ARM CPU (Python, Linux) not supported by TEN VAD.
+* [ ] Overall AUC for all splits.
