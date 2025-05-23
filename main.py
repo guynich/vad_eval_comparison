@@ -7,7 +7,7 @@ from typing import List
 import aiohttp
 import matplotlib.pyplot as plt
 import numpy as np
-from datasets import disable_caching, load_dataset, DatasetDict
+from datasets import DatasetDict, disable_caching, load_dataset
 from sklearn.metrics import (
     average_precision_score,
     precision_recall_curve,
@@ -17,6 +17,8 @@ from sklearn.metrics import (
 
 from speech_detector_silero_vad import SpeechDetector as SpeechDetectorSileroVAD
 from speech_detector_ten_vad import SpeechDetector as SpeechDetectorTenVAD
+
+SHOW_ALL_PLOTS = False  # When True plot AUC curves for all splits.
 
 
 @dataclass
@@ -242,56 +244,142 @@ def main():
     models = [silero_vad, ten_vad]
 
     auc_metric_results = {}
-    for split in splits:
-        model_results = []
-        model_results_confident = []
 
-        for model in models:
-            print(f"Processing {split} with {model.get_name()} ...")
+    # Add these before the try block
+    all_splits_results = []
+    all_splits_results_confident = []
 
-            # Process dataset with batching
-            processed = dataset[split].map(
-                lambda x: process_batch(x, model),
-                batched=True,
-                batch_size=64,
-                remove_columns=dataset[split].column_names,
-                load_from_cache_file=False,
-            )
+    try:
+        for split in splits:
+            model_results = []
+            model_results_confident = []
 
-            # Store results for plotting
-            model_results.append(
-                (dataset[split]["speech"], processed["vad_probs"], model.get_name())
-            )
-            model_results_confident.append(
-                (
-                    processed["confident_speech"],
-                    processed["confident_vad_probs"],
-                    model.get_name(),
+            for model in models:
+                print(f"Processing {split} with {model.get_name()} ...")
+
+                # Process dataset with batching
+                processed = dataset[split].map(
+                    lambda x: process_batch(x, model),
+                    batched=True,
+                    batch_size=64,
+                    remove_columns=dataset[split].column_names,
+                    load_from_cache_file=False,
                 )
-            )
 
-            # Store metrics
-            auc_metric_results[f"{split}_{model.get_name()}"] = compute_overall_auc(
-                dataset[split]["speech"], processed["vad_probs"]
-            )
-            auc_metric_results[f"{split}_{model.get_name()}_confidence"] = (
-                compute_overall_auc(
-                    processed["confident_speech"], processed["confident_vad_probs"]
+                # Store results for plotting
+                model_results.append(
+                    (
+                        dataset[split]["speech"],
+                        processed["vad_probs"],
+                        f"{model.get_name()} ({split})",
+                    )
                 )
+                model_results_confident.append(
+                    (
+                        processed["confident_speech"],
+                        processed["confident_vad_probs"],
+                        f"{model.get_name()} ({split})",
+                    )
+                )
+
+                # Store for all-splits comparison
+                all_splits_results.append(
+                    (
+                        dataset[split]["speech"],
+                        processed["vad_probs"],
+                        f"{model.get_name()} ({split})",
+                    )
+                )
+                all_splits_results_confident.append(
+                    (
+                        processed["confident_speech"],
+                        processed["confident_vad_probs"],
+                        f"{model.get_name()} ({split})",
+                    )
+                )
+
+                # Store metrics
+                auc_metric_results[f"{split}_{model.get_name()}"] = compute_overall_auc(
+                    dataset[split]["speech"], processed["vad_probs"]
+                )
+                auc_metric_results[f"{split}_{model.get_name()}_confidence"] = (
+                    compute_overall_auc(
+                        processed["confident_speech"], processed["confident_vad_probs"]
+                    )
+                )
+
+            if SHOW_ALL_PLOTS:
+                # Individual split comparisons
+                plot_comparison_curves(model_results, split=split)
+                plot_comparison_curves(
+                    model_results_confident,
+                    split=split,
+                    confidence_label=" (exclude low confidence)",
+                )
+
+        if SHOW_ALL_PLOTS:
+            # After processing all splits, plot the combined comparison
+            plot_comparison_curves(all_splits_results, split="All Splits")
+            plot_comparison_curves(
+                all_splits_results_confident,
+                split="All Splits",
+                confidence_label=" (exclude low confidence)",
             )
 
-        # Plot comparisons
-        plot_comparison_curves(model_results, split=split)
+        # Combine results by model
+        model_combined_results = {}
+        model_combined_results_confident = {}
+
+        for y_true, y_scores, model_name in all_splits_results:
+            model_name_base = model_name.split(" (")[0]  # Extract base model name
+            if model_name_base not in model_combined_results:
+                model_combined_results[model_name_base] = {
+                    "y_true": [],
+                    "y_scores": [],
+                }
+            model_combined_results[model_name_base]["y_true"].extend(y_true)
+            model_combined_results[model_name_base]["y_scores"].extend(y_scores)
+
+        for y_true, y_scores, model_name in all_splits_results_confident:
+            model_name_base = model_name.split(" (")[0]
+            if model_name_base not in model_combined_results_confident:
+                model_combined_results_confident[model_name_base] = {
+                    "y_true": [],
+                    "y_scores": [],
+                }
+            model_combined_results_confident[model_name_base]["y_true"].extend(y_true)
+            model_combined_results_confident[model_name_base]["y_scores"].extend(
+                y_scores
+            )
+
+        # Create combined results lists for plotting
+        combined_results = [
+            (data["y_true"], data["y_scores"], model_name)
+            for model_name, data in model_combined_results.items()
+        ]
+
+        combined_results_confident = [
+            (data["y_true"], data["y_scores"], model_name)
+            for model_name, data in model_combined_results_confident.items()
+        ]
+
+        # Plot combined results
+        plot_comparison_curves(combined_results, split="All Data (Combined)")
         plot_comparison_curves(
-            model_results_confident,
-            split=split,
+            combined_results_confident,
+            split="All Data (Combined)",
             confidence_label=" (exclude low confidence)",
         )
+
+    except KeyboardInterrupt:
+        print("Keyboard interrupt detected. Exiting...")
 
     print("\nOverall results:")
     pprint.pprint(auc_metric_results)
 
-    import pdb;  pdb.set_trace()
+    import pdb
+
+    pdb.set_trace()
 
 
 if __name__ == "__main__":
