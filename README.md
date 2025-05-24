@@ -83,16 +83,17 @@ are in file
 
 ### Receiver Operating Characteristic AUC
 
-| Splits | Silero VAD | TEN VAD |
-| ------ | ---------- | ------- |
-| all    | 0.981      | 0.985   |
+| Splits | Silero VAD | TEN VAD | Notes |
+| ------ | ---------- | ------- | ----- |
+| all    | 0.981      | 0.985   |       |
+| all    | 0.994      | 0.996   | exclude low confidence (~7%) |
 
 ### Performance Recall AUC
 
-| Splits | Silero VAD | TEN VAD |
-| ------ | ---------- | ------- |
-| all    | 0.993      | 0.994   |
-
+| Splits | Silero VAD | TEN VAD | Notes |
+| ------ | ---------- | ------- | ----- |
+| all    | 0.993      | 0.994   |       |
+| all    | 0.998      | 0.999   | exclude low confidence (~7%) |
 
 ### Comments
 
