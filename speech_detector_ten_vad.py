@@ -31,5 +31,5 @@ class SpeechDetector:
 
     def reset(self) -> None:
         """Reset model state."""
-        # TODO: Check if TEN VAD has a reset method.
-        self.model.create_and_init_handler()
+        for _ in range(3):
+            self.__call__(np.zeros(self.chunk_size, dtype=np.int16))
