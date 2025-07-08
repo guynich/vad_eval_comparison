@@ -264,6 +264,7 @@ def main():
                     batch_size=64,
                     remove_columns=dataset[split].column_names,
                     load_from_cache_file=False,
+                    num_proc=1,  # >1 triggers "cannot pickle onnxruntime" error.
                 )
 
                 # Store results for plotting
